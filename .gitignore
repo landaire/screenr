@@ -1,1 +1,3 @@
 *.autosave
+awskeys.secret
+*.user
