@@ -7,11 +7,11 @@
 QT       += core gui
 
 QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -std=c++11 -stdlib=libc++
-LIBS += -mmacosx-version-min=10.7 -stdlib=libc++ /System/Library/Frameworks/Carbon.framework/Carbon
+LIBS += /System/Library/Frameworks/Carbon.framework/Carbon -lcurl -lcrypto /Users/lander/Downloads/aws4c-0.5/aws4c.o
 CONFIG += c++11 QT_MAC_USE_COCOA
 DEFINES += QT_MAC_USE_COCOA
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
 
 TARGET = Screenr
 TEMPLATE = app
@@ -19,13 +19,22 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    captureutils.cpp
+    captureutils.cpp \
+    aws.cpp
 
 HEADERS  += mainwindow.h \
-    captureutils.h
+    captureutils.h \
+    aws.h
 
 FORMS    += mainwindow.ui
-cache()
+
+debug {
+    DEFINES += DEBUG
+}
+
+release {
+    DEFINES += RELEASE
+}
 
 # Only Intel binaries are accepted so force this
 #CONFIG -= x86_64
@@ -41,3 +50,5 @@ INSTALLS += plist
 
 # Icon is mandatory for submission
 #ICON = appicon.icns
+
+cache()

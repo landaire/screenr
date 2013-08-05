@@ -4,20 +4,58 @@
 #include <iomanip> // put_time
 #include <stdlib.h>
 #include <QDebug>
+#include <fstream>
+#include <iostream>
+#include <QClipboard>
+#include <QDir>
+#include "aws.h"
+#include <QNetworkReply>
+#include <QClipboard>
+#include <QApplication>
 
-CaptureUtils::CaptureUtils(const std::string temp)
+CaptureUtils::CaptureUtils(const std::string temp) : QObject()
 {
     tempFileName(temp);
+    takeScreenshot(this);
+
+    // Load the AWS keys
+    std::ifstream keyFile("/Users/lander/Documents/Programming/Screenr/awskeys.secret");
+    if (keyFile.is_open())
+    {
+        std::getline(keyFile, AwsKeyId);
+        std::getline(keyFile, AwsSecretKey);
+        keyFile.close();
+    }
 }
 
 OSStatus CaptureUtils::HotkeyHandler(EventHandlerCallRef nextHandler,EventRef theEvent, void *userData)
 {
-    takeScreenshot();
+    takeScreenshot(nullptr);
     return noErr;
 }
 
-void CaptureUtils::takeScreenshot()
+std::string random_string( size_t length )
 {
+    auto randchar = []() -> char
+    {
+        const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[ rand() % max_index ];
+    };
+    std::string str(length,0);
+    std::generate_n( str.begin(), length, randchar );
+    return str;
+}
+
+void CaptureUtils::takeScreenshot(CaptureUtils* instance)
+{
+    static CaptureUtils* classInstance = instance;
+    if (instance != nullptr)
+        return;
+
     std::stringstream command;
     std::string tempPath = tempFileName();
 
@@ -28,11 +66,57 @@ void CaptureUtils::takeScreenshot()
     system(command.str().c_str());
 
     // open command for debugging
-    command.str("");
-    command << "open \""
-            << tempPath
-            << "\"";
-    system(command.str().c_str());
+//    command.str("");
+//    command << "open \""
+//            << tempPath
+//            << "\"";
+//    system(command.str().c_str());
+
+    std::ifstream screenshotFile(tempPath.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
+    if (screenshotFile.is_open())
+    {
+        qDebug("Opened screenshot file");
+        long size = screenshotFile.tellg();
+        screenshotFile.seekg(0, std::ios::beg);
+        std::unique_ptr<char> fileBuf(new char[size]);
+        screenshotFile.read(fileBuf.get(), size);
+        screenshotFile.close();
+
+        const QByteArray data(fileBuf.get(), size);
+        AWS aws(AWS::AWSCredentials{AwsKeyId, AwsSecretKey, "lander_dev", ""});
+        auto request = aws.MakeRequest(random_string(5) + ".png", data);
+        static QNetworkAccessManager* manager = new QNetworkAccessManager(classInstance);
+
+        QNetworkReply* response = manager->put(*request, data);
+        connect(response, SIGNAL(finished()), classInstance, SLOT(finished()));
+        connect(response, SIGNAL(error(QNetworkReply::NetworkError)), classInstance, SLOT(onError(QNetworkReply::NetworkError)));
+
+        //s3_put(bf.get(), const_cast<char*>(QDir(tempPath.c_str()).dirName().toStdString().c_str()));
+    }
+    else
+    {
+        qDebug("Couldn't open the screenshot file");
+    }
+
+}
+
+void CaptureUtils::onError(QNetworkReply::NetworkError code)
+{
+    qDebug("error: %d", code);
+}
+
+void CaptureUtils::finished()
+{
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    qDebug("%s", reply->errorString().toStdString().c_str());
+    while (!reply->isFinished())
+    {
+        // do nothing
+    }
+    qDebug("%d", reply->error());
+    qDebug("%d", QString(reply->readAll()).toStdString().c_str());
+    QApplication::clipboard()->setText(reply->url().toString());
+    delete reply;
 }
 
 // Returns absolute path to a temp file. Must be static so it's accessable to the HotkeyHandler
@@ -41,9 +125,10 @@ std::string CaptureUtils::tempFileName(const std::string root)
     static std::string rootTempDirectory = root;
     if (root != "")
         return "";
-    // Generate the hash
+    // Generate the path
     std::stringstream ss;
     std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
     ss << rootTempDirectory
        << "/Screenr Grab "
        << std::put_time(std::localtime(&time), "%c %Z")
@@ -63,8 +148,8 @@ void CaptureUtils::SetupHotkeys()
     gMyHotKeyID.signature = signature;
     gMyHotKeyID.id = 1;
 
-    // Regsiters the hotkey ⌘⇪+CTRL
-    RegisterEventHotKey(kVK_ANSI_8, cmdKey|shiftKey, gMyHotKeyID, GetApplicationEventTarget(), 0, &gMyHotKeyRef);
+    // Regsiters the hotkey ⌘⇪+5
+    RegisterEventHotKey(kVK_ANSI_5, cmdKey|shiftKey, gMyHotKeyID, GetApplicationEventTarget(), 0, &gMyHotKeyRef);
 }
 
 CaptureUtils::~CaptureUtils()
