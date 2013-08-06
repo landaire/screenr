@@ -7,11 +7,11 @@
 QT       += core gui
 
 QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -std=c++11 -stdlib=libc++
-LIBS += /System/Library/Frameworks/Carbon.framework/Carbon -lcurl -lcrypto /Users/lander/Downloads/aws4c-0.5/aws4c.o
+LIBS += /System/Library/Frameworks/Carbon.framework/Carbon -lcurl -lcrypto /Users/lander/Downloads/aws4c-0.5/aws4c.o -framework Cocoa
 CONFIG += c++11 QT_MAC_USE_COCOA
 DEFINES += QT_MAC_USE_COCOA
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network macextras
 
 TARGET = Screenr
 TEMPLATE = app
