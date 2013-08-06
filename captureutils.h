@@ -4,6 +4,7 @@
 #include <string>
 #include <QNetworkReply>
 #include <QObject>
+#include "aws.h"
 
 class CaptureUtils : public QObject
 {
@@ -12,13 +13,11 @@ public:
     CaptureUtils(std::string temp);
     ~CaptureUtils();
 
-    void SetupHotkeys();
+    void SetupHotkeys( void );
     static OSStatus HotkeyHandler(EventHandlerCallRef nextHandler,EventRef theEvent, void *userData);
+    static void SetCredentials(AWS::AWSCredentials credentials);
 
-#ifdef DEBUG
-    static std::string AwsKeyId;
-    static std::string AwsSecretKey;
-#endif
+    static AWS::AWSCredentials AwsCredentials;
 
 private:
     // Stuff required for hotkeys
@@ -30,7 +29,7 @@ private:
     static void takeScreenshot(CaptureUtils *instance);
     static std::string tempFileName(const std::string root = "");
 public slots:
-    void finished();
+    void finished(void);
     void onError(QNetworkReply::NetworkError code);
 };
 

@@ -12,6 +12,7 @@
 #include <QNetworkReply>
 #include <QClipboard>
 #include <QApplication>
+#include <QFile>
 
 CaptureUtils::CaptureUtils(const std::string temp) : QObject()
 {
@@ -19,13 +20,16 @@ CaptureUtils::CaptureUtils(const std::string temp) : QObject()
     takeScreenshot(this);
 
     // Load the AWS keys
+#ifdef MANUAL_LOAD_KEYS
     std::ifstream keyFile("/Users/lander/Documents/Programming/Screenr/awskeys.secret");
     if (keyFile.is_open())
     {
-        std::getline(keyFile, AwsKeyId);
-        std::getline(keyFile, AwsSecretKey);
+        std::getLine(keyFile, AwsCredentials.Bucket)
+        std::getline(keyFile, AwsCredentials.AwsKeyId);
+        std::getline(keyFile, AwsCredentials.AwsSecretKey);
         keyFile.close();
     }
+#endif
 }
 
 OSStatus CaptureUtils::HotkeyHandler(EventHandlerCallRef nextHandler,EventRef theEvent, void *userData)
@@ -63,7 +67,8 @@ void CaptureUtils::takeScreenshot(CaptureUtils* instance)
     command << "screencapture -i \""
             << tempPath
             << "\"";
-    system(command.str().c_str());
+    int result = system(command.str().c_str());
+    qDebug("%d", result);
 
     // open command for debugging
 //    command.str("");
@@ -82,8 +87,13 @@ void CaptureUtils::takeScreenshot(CaptureUtils* instance)
         screenshotFile.read(fileBuf.get(), size);
         screenshotFile.close();
 
+        // Now that the file is closed, it can be deleted
+        QFile file(tempPath.c_str());
+        file.remove();
+
         const QByteArray data(fileBuf.get(), size);
-        AWS aws(AWS::AWSCredentials{AwsKeyId, AwsSecretKey, "lander_dev", ""});
+
+        AWS aws(AwsCredentials);
         auto request = aws.MakeRequest(random_string(5) + ".png", data);
         static QNetworkAccessManager* manager = new QNetworkAccessManager(classInstance);
 
@@ -105,7 +115,7 @@ void CaptureUtils::onError(QNetworkReply::NetworkError code)
     qDebug("error: %d", code);
 }
 
-void CaptureUtils::finished()
+void CaptureUtils::finished( void )
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     qDebug("%s", reply->errorString().toStdString().c_str());
@@ -133,11 +143,12 @@ std::string CaptureUtils::tempFileName(const std::string root)
        << "/Screenr Grab "
        << std::put_time(std::localtime(&time), "%c %Z")
        << ".png";
+    qDebug("%s", ss.str().c_str());
     return ss.str();
 }
 
 /* reference: http://dbachrach.com/blog/2005/11/program-global-hotkeys-in-cocoa-easily/ */
-void CaptureUtils::SetupHotkeys()
+void CaptureUtils::SetupHotkeys( void )
 {
     eventType.eventClass = kEventClassKeyboard;
     eventType.eventKind = kEventHotKeyPressed;
