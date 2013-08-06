@@ -26,7 +26,6 @@ public:
 
 private:
     const char* HttpTimeFormat = "%a, %d %h %Y %T %z";
-    const QString hmac_sha1(const QString &key, const QString &secret);
 
 };
 
