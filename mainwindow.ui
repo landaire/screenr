@@ -23,98 +23,112 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QFormLayout" name="formLayout">
-    <property name="sizeConstraint">
-     <enum>QLayout::SetNoConstraint</enum>
-    </property>
-    <property name="fieldGrowthPolicy">
-     <enum>QFormLayout::ExpandingFieldsGrow</enum>
-    </property>
-    <property name="formAlignment">
-     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-    </property>
-    <property name="horizontalSpacing">
-     <number>-1</number>
-    </property>
-    <property name="leftMargin">
-     <number>12</number>
-    </property>
-    <property name="topMargin">
-     <number>12</number>
-    </property>
-    <property name="rightMargin">
-     <number>12</number>
-    </property>
-    <property name="bottomMargin">
-     <number>12</number>
-    </property>
-    <item row="2" column="0">
-     <widget class="QLabel" name="labelS3Bucket">
-      <property name="text">
-       <string>S3 Bucket Name</string>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="lineS3Bucket">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="inputMask">
-       <string/>
-      </property>
-      <property name="placeholderText">
-       <string>static.johnsmith.net</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="labelS3Id">
-      <property name="text">
-       <string>Access Key ID</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QLineEdit" name="lineS3Id">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="echoMode">
-       <enum>QLineEdit::Normal</enum>
-      </property>
-      <property name="placeholderText">
-       <string>AKIAIOSFODNN7EXAMPLE</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="labelS3Secret">
-      <property name="text">
-       <string>Access Key Secret</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QLineEdit" name="lineS3Secret">
-      <property name="minimumSize">
-       <size>
-        <width>325</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="echoMode">
-       <enum>QLineEdit::Password</enum>
-      </property>
-      <property name="placeholderText">
-       <string>wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</string>
-      </property>
+      <widget class="QWidget" name="pageGeneralS3">
+       <layout class="QFormLayout" name="formLayout">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelS3Bucket">
+          <property name="text">
+           <string>S3 Bucket Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="lineS3Bucket">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="inputMask">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>static.johnsmith.net</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelS3Id">
+          <property name="text">
+           <string>Access Key ID</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineS3Id">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maxLength">
+           <number>20</number>
+          </property>
+          <property name="echoMode">
+           <enum>QLineEdit::Normal</enum>
+          </property>
+          <property name="placeholderText">
+           <string>AKIAIOSFODNN7EXAMPLE</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="labelS3Secret">
+          <property name="text">
+           <string>Access Key Secret</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineS3Secret">
+          <property name="minimumSize">
+           <size>
+            <width>325</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maxLength">
+           <number>40</number>
+          </property>
+          <property name="echoMode">
+           <enum>QLineEdit::Password</enum>
+          </property>
+          <property name="placeholderText">
+           <string>wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="pageAbout">
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>110</y>
+          <width>62</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>About</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -147,9 +161,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionTest"/>
   </widget>
-  <action name="actionTest">
+  <action name="actionS3">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -158,13 +171,24 @@
      <normaloff>../../C++/Up/Up/Images/Disk.png</normaloff>../../C++/Up/Up/Images/Disk.png</iconset>
    </property>
    <property name="text">
-    <string>Test</string>
+    <string>S3</string>
+   </property>
+   <property name="toolTip">
+    <string>Amazon S3 Bucket Information</string>
    </property>
    <property name="visible">
     <bool>true</bool>
    </property>
    <property name="menuRole">
     <enum>QAction::ApplicationSpecificRole</enum>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

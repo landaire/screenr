@@ -9,6 +9,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    toolBarGroup = std::unique_ptr<QActionGroup>(new QActionGroup(this));
+    setToolBarGroup();
     // makes the toolbar look like "not shit" as I'd describe it
     QtMacExtras::setNativeToolBar(ui->toolBar);
     appSettings = std::shared_ptr<QSettings>(new QSettings("lander", "unnamed"));
@@ -31,6 +34,31 @@ MainWindow::MainWindow(QWidget *parent) :
     captureUtil = std::unique_ptr<CaptureUtils>(new CaptureUtils(QDir::tempPath().toStdString()));
     captureUtil->AwsCredentials = userCredentials;
     captureUtil->SetupHotkeys();
+}
+
+void MainWindow::setToolBarGroup( void )
+{
+    ui->actionS3->setChecked(true);
+    toolBarGroup->addAction(ui->actionS3);
+    toolBarGroup->addAction(ui->actionAbout);
+
+    ui->toolBar->addActions(toolBarGroup->actions());
+    QWidget* spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    ui->toolBar->insertWidget(ui->actionAbout, spacer);
+
+    connect(ui->actionS3, SIGNAL(triggered(bool)), this, SLOT(toolBarS3Clicked(bool)));
+    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(toolBarAboutClicked(bool)));
+}
+
+void MainWindow::toolBarS3Clicked( bool checked )
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::toolBarAboutClicked(bool checked )
+{
+    ui->stackedWidget->setCurrentIndex(1);
 }
 
 //TODO: Add text input masks/validation (invalid chars, lengths, etc.)
