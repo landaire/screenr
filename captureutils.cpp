@@ -70,13 +70,6 @@ void CaptureUtils::takeScreenshot(CaptureUtils* instance)
     int result = system(command.str().c_str());
     qDebug("%d", result);
 
-    // open command for debugging
-//    command.str("");
-//    command << "open \""
-//            << tempPath
-//            << "\"";
-//    system(command.str().c_str());
-
     std::ifstream screenshotFile(tempPath.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
     if (screenshotFile.is_open())
     {
@@ -105,7 +98,7 @@ void CaptureUtils::takeScreenshot(CaptureUtils* instance)
     }
     else
     {
-        qDebug("Couldn't open the screenshot file");
+        // Probably canceled the screenshot. That's cool
     }
 
 }
